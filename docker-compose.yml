@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=emotive
+      - POSTGRES_USER=emotive
+      - POSTGRES_PASSWORD=emotive
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  app:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=take_home.settings
+      - DJANGO_LOG_LEVEL=DEBUG
+      - ENV=local
+      - POSTGRES_NAME=emotive
+      - POSTGRES_USER=emotive
+      - POSTGRES_PASS=emotive
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - WEATHER_API_KEY=fefa88d43d0ec9e7181a2194f7f3a8c2
+      - ASTRONOMY_APPLICATION_ID=9a149842-51e1-4602-8c83-0916052fbc6c
+      - ASTRONOMY_APPLICATION_SECRET=4a64fd78224380bf7abb7d09b008cd05037e269911c2a9e8aed08684072e3bae13ce3c8020c05538a8a42dc6f2795e41bed149ecc18b1c5a4b3e4e509b52284e2eba08ca9edc8c4a091893319e700fdfc77a219265ece71d2af7764ec869eb6db941ebc26a1a8110a755046b052d23bb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+      - ./tests:/tests
+    command: runserver
+
+volumes:
+  db_data:
+    driver: local
